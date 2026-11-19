@@ -1,4 +1,11 @@
+# Build output from local runs of main.ts
 out/
-out1/
-out2/
+output/
+
+# Python bytecode from render.py
 __pycache__/
+*.pyc
+
+# Editor and OS leftovers
+.DS_Store
+*.log

@@ -1,23 +1,22 @@
-// news-image-20261119 entry. Node 22, standard library only.
-//
-// The front page for Thursday 19 November 2026 is already drawn:
-// render.py (Pillow, deterministic, no network) produced entry.png.
-// All this program does is place a copy in the grader's output
-// directory, so repeated runs write byte-identical files.
-//
-// Local run: mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
-
-import { copyFileSync, mkdirSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { copyFile, mkdir } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// The folder this file lives in — entry.png sits beside it.
-const sourceDir = dirname(fileURLToPath(import.meta.url));
+// The finished front page this repository holds, next to this file.
+const source = resolve(dirname(fileURLToPath(import.meta.url)), "entry.png");
 
-function deliver() {
-  const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
-  mkdirSync(outDir, { recursive: true });
-  copyFileSync(join(sourceDir, "entry.png"), join(outDir, "entry.png"));
+// The harness hands the entry its output directory through the
+// environment; locally it defaults to /output, as the rules describe.
+const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+
+// Put the picture where the judge will look for it, then say where
+// it landed so a local run is easy to confirm by eye.
+async function placeEntry(): Promise<string> {
+  const target = join(outDir, "entry.png");
+  await mkdir(outDir, { recursive: true });
+  await copyFile(source, target);
+  return target;
 }
 
-deliver();
+const placed = await placeEntry();
+console.log(`entry.png -> ${placed}`);
